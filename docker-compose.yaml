@@ -1,0 +1,22 @@
+
+services:
+  app:
+    user: "${USER_ID:-1000}"
+    hostname: "${HOST_NAME:-bullyguard}"
+    image: bullyguard-data-preparation
+    container_name: bullyguard-data-preparation-container
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        USER_NAME: "${USER_NAME:-bar3126}"
+        USER_ID: "${USER_ID:-1000}"
+    volumes:
+      - ./:/app/
+      - ~/.config/gcloud/:/home/${USER_NAME}/.config/gcloud
+    ports:
+      - 8080:8080
+
+    init: true
+    ipc: host
+      
