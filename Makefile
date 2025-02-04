@@ -26,8 +26,8 @@ guard-%:
 	@#$(or ${$*}, $(error $* is not set))
 
 ## call entrypoint:
-prepare-dataset: up
-	$(DOCKER_COMPOSE_EXEC) python ./bullyguard/prepare_dataset.py
+process-data: up
+	$(DOCKER_COMPOSE_EXEC) python ./bullyguard/process_data.py
 
 ## starts jupyter notebook
 notebook: up
