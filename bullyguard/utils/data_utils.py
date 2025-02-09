@@ -1,6 +1,7 @@
 import subprocess
 from shutil import rmtree
 
+
 def get_cmd_to_get_raw_data(
     version: str,
     data_local_save_dir: str,
@@ -13,6 +14,7 @@ def get_cmd_to_get_raw_data(
     dvc_remote_repo = f"https://{github_user_name}:{github_access_token}@{without_https}"
     command = f"dvc get {dvc_remote_repo} {dvc_data_folder} --rev {version} -o {data_local_save_dir}"
     return command
+
 
 def get_raw_data_with_version(
     version: str,
