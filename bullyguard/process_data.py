@@ -24,6 +24,7 @@ def process_data(config: DataProcessConfig) -> None:
     df = dataset_reader_manager.read_data()
 
     print(df.head())
+    print(df["dataset_name"].unique().compute())
 
 
 if __name__ == "__main__":
