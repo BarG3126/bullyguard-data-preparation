@@ -1,8 +1,9 @@
+from hydra.utils import instantiate
+
 from bullyguard.config_schemas.data_processing_config_schema import DataProcessConfig
 from bullyguard.utils.config_utils import get_config
-from bullyguard.utils.gcp_utils import access_secret_version
 from bullyguard.utils.data_utils import get_raw_data_with_version
-from hydra.utils import instantiate
+from bullyguard.utils.gcp_utils import access_secret_version
 
 
 @get_config(config_path="../configs", config_name="data_processing_config")
@@ -21,7 +22,7 @@ def process_data(config: DataProcessConfig) -> None:
         dvc_remote_repo=config.dvc_remote_repo,
         dvc_data_folder=config.dvc_data_folder,
         github_user_name=config.github_user_name,
-        github_access_token=github_access_token
+        github_access_token=github_access_token,
     )
 
     dataset_reader_manager = instantiate(config.dataset_reader_manager)
@@ -41,4 +42,4 @@ def process_data(config: DataProcessConfig) -> None:
 
 
 if __name__ == "__main__":
-    process_data()  # type: ignore
+    process_data()

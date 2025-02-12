@@ -1,8 +1,11 @@
-from abc import ABC, abstractmethod
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 import re
 import string
+
+from abc import ABC, abstractmethod
+
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
 from bullyguard.utils.utils import SpellCorrectionModel
 
 
@@ -49,7 +52,12 @@ class ToLowerCaseDatasetCleaner(DatasetCleaner):
 
 class URLDatasetCleaner(DatasetCleaner):
     def clean_text(self, text: str) -> str:
-        return re.sub(r"http\S+", "", text, flags=re.MULTILINE)
+        return re.sub(
+            r"\b(https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*))",
+            "",
+            text,
+            flags=re.MULTILINE,
+        )
 
     def clean_words(self, words: list[str]) -> list[str]:
         return [self.clean_text(word) for word in words]
@@ -110,7 +118,7 @@ class RetweetDatasetCleaner(DatasetCleaner):
 
 
 class SpellCorrectionDatasetCleaner(DatasetCleaner):
-    def __init__(self, spell_correction_model: SpellCorrectionModel):
+    def __init__(self, spell_correction_model: SpellCorrectionModel) -> None:
         super().__init__()
         self.spell_correction_model = spell_correction_model
 
@@ -122,7 +130,20 @@ class SpellCorrectionDatasetCleaner(DatasetCleaner):
         return self.clean_text(text).split()
 
 
-class DatasetCleanerManager():
+class CharacterLimiterDatasetCleaner(DatasetCleaner):
+    def __init__(self, character_limit: int = 300) -> None:
+        super().__init__()
+        self.character_limit = character_limit
+
+    def clean_text(self, text: str) -> str:
+        return text[: self.character_limit]
+
+    def clean_words(self, words: list[str]) -> list[str]:
+        text = " ".join(words)
+        return self.clean_text(text).split()
+
+
+class DatasetCleanerManager:
     def __init__(self, dataset_cleaners: dict[str, DatasetCleaner]) -> None:
         self.dataset_cleaners = dataset_cleaners
 

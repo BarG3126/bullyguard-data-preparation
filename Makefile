@@ -39,7 +39,7 @@ sort: up
 
 ## check the sorting using isort
 sort-check: up
-	$(DOCKER_COMPOSE_EXEC) ISORT --CHECK-ONLY --ATOMIC $(DIRS_TO_VALIDATE)
+	$(DOCKER_COMPOSE_EXEC) isort --check-only --atomic bullyguard $(DIRS_TO_VALIDATE)
 
 ## format code using Black
 format: up

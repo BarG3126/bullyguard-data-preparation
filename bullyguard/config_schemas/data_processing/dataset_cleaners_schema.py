@@ -1,8 +1,10 @@
-from dataclasses import field
-from pydantic.dataclasses import dataclass
-from omegaconf import MISSING
 import string
+
+from dataclasses import field
+
 from hydra.core.config_store import ConfigStore
+from omegaconf import MISSING
+from pydantic.dataclasses import dataclass
 
 
 @dataclass
@@ -71,6 +73,12 @@ class SpellCorrectionDatasetCleanerConfig(DatasetCleanerConfig):
 
 
 @dataclass
+class CharacterLimiterDatasetCleanerConfig(DatasetCleanerConfig):
+    _target_: str = "bullyguard.data_processing.dataset_cleaners.CharacterLimiterDatasetCleaner"
+    character_limit: int = 300
+
+
+@dataclass
 class DatasetCleanerManagerConfig:
     _target_: str = "bullyguard.data_processing.dataset_cleaners.DatasetCleanerManager"
     dataset_cleaners: dict[str, DatasetCleanerConfig] = field(default_factory=lambda: {})
@@ -92,9 +100,7 @@ def setup_config() -> None:
     )
 
     cs.store(
-        group="dataset_cleaner_manager/dataset_cleaner",
-        name="url_dataset_cleaner_schema",
-        node=URLDatasetCleanerConfig
+        group="dataset_cleaner_manager/dataset_cleaner", name="url_dataset_cleaner_schema", node=URLDatasetCleanerConfig
     )
 
     cs.store(
@@ -135,12 +141,14 @@ def setup_config() -> None:
 
     cs.store(
         group="dataset_cleaner_manager/dataset_cleaner",
+        name="character_limiter_dataset_cleaner_schema",
+        node=CharacterLimiterDatasetCleanerConfig,
+    )
+
+    cs.store(
+        group="dataset_cleaner_manager/dataset_cleaner",
         name="spell_correction_dataset_cleaner_schema",
         node=SpellCorrectionDatasetCleanerConfig,
     )
 
-    cs.store(
-        group="dataset_cleaner_manager",
-        name="dataset_cleaner_manager_schema",
-        node=DatasetCleanerManagerConfig
-    )
+    cs.store(group="dataset_cleaner_manager", name="dataset_cleaner_manager_schema", node=DatasetCleanerManagerConfig)

@@ -1,9 +1,13 @@
-from abc import ABC, abstractmethod
-import dask.dataframe as dd
 import os
-from bullyguard.utils.utils import get_logger
+
+from abc import ABC, abstractmethod
 from typing import Optional
+
+import dask.dataframe as dd
+
 from dask_ml.model_selection import train_test_split
+
+from bullyguard.utils.utils import get_logger
 
 
 class DatasetReader(ABC):
@@ -25,7 +29,8 @@ class DatasetReader(ABC):
         unique_split_names = set(df["split"].unique().compute().tolist())
         if unique_split_names != self.split_names:
             raise ValueError(f"Dataset must contain all required split names: {self.split_names}")
-        return df[list(self.required_columns)]
+        final_df: dd.core.DataFrame = df[list(self.required_columns)]
+        return final_df
 
     @abstractmethod
     def _read_data(self) -> tuple[dd.core.DataFrame, dd.core.DataFrame, dd.core.DataFrame]:
@@ -34,15 +39,20 @@ class DatasetReader(ABC):
         return: must be a dd.core.DataFrame, with required columns: self.required_columns
         """
 
-    def assign_split_names_to_dataframes_and_merge(self, train_df: dd.core.DataFrame, dev_df: dd.core.DataFrame, test_df: dd.core.DataFrame) -> dd.core.DataFrame:
+    def assign_split_names_to_dataframes_and_merge(
+        self, train_df: dd.core.DataFrame, dev_df: dd.core.DataFrame, test_df: dd.core.DataFrame
+    ) -> dd.core.DataFrame:
         train_df["split"] = "train"
         dev_df["split"] = "dev"
         test_df["split"] = "test"
-        return dd.concat([train_df, dev_df, test_df])
+        final_df: dd.core.DataFrame = dd.concat([train_df, dev_df, test_df])
+        return final_df
 
-    def split_dataset(self, df: dd.core.DataFrame, test_size: float, stratify_column: Optional[str] = None) -> tuple[dd.core.DataFrame, dd.core.DataFrame]:
+    def split_dataset(
+        self, df: dd.core.DataFrame, test_size: float, stratify_column: Optional[str] = None
+    ) -> tuple[dd.core.DataFrame, dd.core.DataFrame]:
         if stratify_column is None:
-            return train_test_split(df, test_size=test_size, random_state=1234, shuffle=True)
+            return train_test_split(df, test_size=test_size, random_state=1234, shuffle=True)  # type: ignore
         unique_column_values = df[stratify_column].unique()
         first_dfs = []
         second_dfs = []
@@ -83,7 +93,6 @@ class JigsawToxicCommentsDatasetReader(DatasetReader):
         self.columns_for_label = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
 
     def _read_data(self) -> tuple[dd.core.DataFrame, dd.core.DataFrame, dd.core.DataFrame]:
-
         test_csv_path = os.path.join(self.dataset_dir, "test.csv")
         test_df = dd.read_csv(test_csv_path)
 
@@ -117,7 +126,6 @@ class TwitterDatasetReader(DatasetReader):
         self.test_split_ratio = test_split_ratio
 
     def _read_data(self) -> tuple[dd.core.DataFrame, dd.core.DataFrame, dd.core.DataFrame]:
-
         csv_path = os.path.join(self.dataset_dir, "cyberbullying_tweets.csv")
         df = dd.read_csv(csv_path)
 
@@ -143,5 +151,5 @@ class DatasetReaderManager:
 
     def read_data(self) -> dd.core.DataFrame:
         dfs = [dataset_reader.read_data() for dataset_reader in self.dataset_readers.values()]
-        df = dd.concat(dfs)
+        df: dd.core.DataFrame = dd.concat(dfs)
         return df
