@@ -7,6 +7,11 @@ from hydra.utils import instantiate
 
 @get_config(config_path="../configs", config_name="data_processing_config")
 def process_data(config: DataProcessConfig) -> None:
+    #    from omegaconf import OmegaConf
+    #    print(60 * "#")
+    #    print(OmegaConf.to_yaml(config))
+    #    print(60 * "#")
+    #    return
 
     github_access_token = access_secret_version(config.infrastructure.project_id, config.github_access_token_secret_id)
 
@@ -20,11 +25,19 @@ def process_data(config: DataProcessConfig) -> None:
     )
 
     dataset_reader_manager = instantiate(config.dataset_reader_manager)
+    dataset_cleaner_manager = instantiate(config.dataset_cleaner_manager)
 
-    df = dataset_reader_manager.read_data()
+    df = dataset_reader_manager.read_data().compute()
+    sample_df = df.sample(n=5)
 
-    print(df.head())
-    print(df["dataset_name"].unique().compute())
+    for _, row in sample_df.iterrows():
+        text = row["text"]
+        cleaned_text = dataset_cleaner_manager(text)
+
+        print(60 * "#")
+        print(f"{text=}")
+        print(f"{cleaned_text=}")
+        print(60 * "#")
 
 
 if __name__ == "__main__":

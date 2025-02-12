@@ -41,7 +41,7 @@ class StopWordsDatasetCleaner(DatasetCleaner):
 
 class ToLowerCaseDatasetCleaner(DatasetCleaner):
     def clean_text(self, text: str) -> str:
-        return text.lower
+        return text.lower()
 
     def clean_words(self, words: list[str]) -> list[str]:
         return [word.lower() for word in words]
