@@ -33,6 +33,7 @@ class TwitterDatasetReaderConfig(DatasetReaderConfig):
 class DatasetReaderManagerConfig:
     _target_: str = "bullyguard.data_processing.dataset_readers.DatasetReaderManager"
     dataset_readers: dict[str, DatasetReaderConfig] = MISSING
+    repartition: bool = True
 
 
 def setup_config() -> None:
