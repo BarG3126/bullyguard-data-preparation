@@ -32,13 +32,6 @@ def get_raw_data_with_version(
         version, data_local_save_dir, dvc_remote_repo, dvc_data_folder, github_user_name, github_access_token
     )
     run_shell_command(command)
-    # try:
-    #    result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-    #    print(f"Command output: {result.stdout}")
-    # except subprocess.CalledProcessError as e:
-    #    print(f"Command failed with exit code {e.returncode}")
-    #    print(f"Error output: {e.stderr}")
-    #    raise
 
 
 def get_nrof_partitions(

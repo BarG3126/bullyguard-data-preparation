@@ -1,7 +1,7 @@
 from typing import Optional
 from hydra.core.config_store import ConfigStore
-from omegaconf import MISSING
-from pydantic.dataclasses import dataclass
+from omegaconf import MISSING, SI
+from pydantic.dataclasses import dataclass, field
 
 
 @dataclass
@@ -34,6 +34,37 @@ class LocalDaskClusterConfig(DaskClusterConfig):
     worker_class: Optional[WorkerClassConfig] = None
 
 
+@dataclass
+class GCPDaskClusterConfig(DaskClusterConfig):
+    _target_: str = "dask_cloudprovider.gcp.GCPVluster"
+    project_id: str = SI("${infrastructure.project_id}")
+    zone: str = SI("${infrastructure.zone}")
+    network: str = SI("${infrastructure.network}")
+    network_project_id: Optional[str] = "bullyguard"
+    machine_type: str = "n1-standard-1"
+    source_image: str = "projects/ubuntu-os-cloud/global/images/ubuntu-minimal-1804-bionic-v20201014"
+    docker_image: Optional[str] = "daskdev/dask:latest"
+    docker_args: str = ""
+    extra_bootstrap: Optional[list[str]] = field(default_factory=lambda: ["gcloud auth configure-docker --quiet europe-west4-docker.pkg.dev"])
+    ngpus: Optional[int] = 0
+    gpu_type: Optional[str] = None
+    filesystem_size: int = 50  # in GB
+    disk_type: str = "pd-standard"
+    on_host_maintenance: Optional[str] = "TERMINATE"
+
+    n_workers: int = 0
+    worker_class: str = "dask.distributed.Nanny"
+    env_vars: dict[str, str] = field(default_factory=lambda: {})
+    scheduler_options: dict[str, str] = field(default_factory=lambda: {})
+    silence_logs: Optional[bool] = None
+    asynchronous: Optional[bool] = None
+    security: bool = True
+    preemptible: Optional[bool] = False
+    debug: Optional[bool] = False
+    instance_labels: Optional[dict[str, str]] = None
+
+
 def setup_config() -> None:
     cs = ConfigStore.instance()
     cs.store(name="local_dask_cluster_schema", node=LocalDaskClusterConfig, group="dask_cluster")
+    cs.store(name="gcp_dask_cluster_schema", node=GCPDaskClusterConfig, group="dask_cluster")
