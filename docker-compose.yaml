@@ -3,8 +3,8 @@ services:
   app:
     user: "${USER_ID:-1000}"
     hostname: "${HOST_NAME:-bullyguard}"
-    image: bullyguard-data-preparation
-    container_name: bullyguard-data-preparation-container
+    image: bullyguard-data-processing
+    container_name: bullyguard-data-processing-container
     build:
       context: .
       dockerfile: ./docker/Dockerfile

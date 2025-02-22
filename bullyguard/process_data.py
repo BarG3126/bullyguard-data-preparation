@@ -4,24 +4,27 @@ from dask.distributed import Client
 from pathlib import Path
 import os
 from bullyguard.config_schemas.data_processing_config_schema import DataProcessConfig
-from bullyguard.data_processing.dataset_cleaners import DatasetCleanerManager
-from bullyguard.utils.config_utils import get_config
+from bullyguard.config_schemas.data_processing.dataset_cleaners_schema import DatasetCleanerManagerConfig
+from bullyguard.utils.config_utils import get_pickle_config
 from bullyguard.utils.data_utils import get_raw_data_with_version
 from bullyguard.utils.gcp_utils import access_secret_version
 from bullyguard.utils.utils import get_logger
 
 
-def process_raw_data(df_partition: dd.core.DataFrame, dataset_cleaner_manager: DatasetCleanerManager) -> dd.core.DataFrame:
-    return df_partition["text"].apply(dataset_cleaner_manager)
+def process_raw_data(
+    df_partition: dd.core.DataFrame, dataset_cleaner_manager: DatasetCleanerManagerConfig
+) -> dd.core.Series:
+    processed_partition: dd.core.Series = df_partition["text"].apply(dataset_cleaner_manager)
+    return processed_partition
 
 
-@get_config(config_path="../configs", config_name="data_processing_config")
+@get_pickle_config(config_path="bullyguard/configs/automatically_generated", config_name="data_processing_config")
 def process_data(config: DataProcessConfig) -> None:
     # from omegaconf import OmegaConf
     # print(60 * "#")
     # print(OmegaConf.to_yaml(config))
-    # print(60 * "#")
-    # return
+    print(config)
+    return
     logger = get_logger(Path(__file__).name)
     logger.info("Processing raw data...")
 
