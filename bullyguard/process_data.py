@@ -23,8 +23,8 @@ def process_data(config: DataProcessConfig) -> None:
     # from omegaconf import OmegaConf
     # print(60 * "#")
     # print(OmegaConf.to_yaml(config))
-    print(config)
-    return
+    # print(config)
+    # return
     logger = get_logger(Path(__file__).name)
     logger.info("Processing raw data...")
 
@@ -51,9 +51,9 @@ def process_data(config: DataProcessConfig) -> None:
 
         df = dataset_reader_manager.read_data(config.dask_cluster.n_workers)
 
-        print(60 * "#")
-        print(f"{df.npartitions=}")
-        print(60 * "#")
+        print(df.compute().head())
+
+        exit(0)
 
         logger.info("Cleaning data...")
         df = df.assign(cleaned_text=df.map_partitions(process_raw_data, dataset_cleaner_manager=dataset_cleaner_manager, meta=("text", "object")))

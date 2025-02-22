@@ -15,16 +15,31 @@ dataset_reader_manager:
       _target_: bullyguard.data_processing.dataset_readers.GHCDatasetReader
       dataset_dir: ./data/raw/ghc
       dataset_name: ghc
+      gcp_project_id: ml-project-447013
+      gcp_github_access_token_secret_id: bullyguard-data-github-access-token
+      dvc_remote_repo: https://github.com/BarG3126/bullyguard-data.git
+      github_user_name: BarG3126
+      version: v3
       dev_split_ratio: 0.3
     jtc:
       _target_: bullyguard.data_processing.dataset_readers.JigsawToxicCommentsDatasetReader
       dataset_dir: ./data/raw/jigsaw-toxic-comment
       dataset_name: jtc
+      gcp_project_id: ml-project-447013
+      gcp_github_access_token_secret_id: bullyguard-data-github-access-token
+      dvc_remote_repo: https://github.com/BarG3126/bullyguard-data.git
+      github_user_name: BarG3126
+      version: v3
       dev_split_ratio: 0.06
     twitter:
       _target_: bullyguard.data_processing.dataset_readers.TwitterDatasetReader
       dataset_dir: ./data/raw/twitter
       dataset_name: twitter
+      gcp_project_id: ml-project-447013
+      gcp_github_access_token_secret_id: bullyguard-data-github-access-token
+      dvc_remote_repo: https://github.com/BarG3126/bullyguard-data.git
+      github_user_name: BarG3126
+      version: v3
       dev_split_ratio: 0.25
       test_split_ratio: 0.2
   repartition: true
@@ -76,4 +91,4 @@ dask_cluster:
   worker_class: null
 processed_data_save_dir: ./data/processed
 docker_image_name: europe-west4-docker.pkg.dev/ml-project-447013/bullyguard/bullyguard-data-processing
-docker_image_tag: f028f202-604b-45a9-ac9e-bac4d2c85f05
+docker_image_tag: ab335beb-40d7-47ee-9ceb-6bfcd71d0bcc
