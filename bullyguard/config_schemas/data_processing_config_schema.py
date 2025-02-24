@@ -8,7 +8,7 @@ from bullyguard.config_schemas.infrastructure import gcp_schema
 
 
 @dataclass
-class DataProcessConfig:
+class DataProcessingConfig:
     version: str = MISSING
     data_local_save_dir: str = "./data/raw"
     dvc_remote_repo: str = "https://github.com/BarG3126/bullyguard-data.git"
@@ -22,9 +22,11 @@ class DataProcessConfig:
 
     dataset_cleaner_manager: dataset_cleaners_schema.DatasetCleanerManagerConfig = MISSING
 
-    dask_cluster: dask_cluster_schema.LocalDaskClusterConfig = MISSING
+    dask_cluster: dask_cluster_schema.DaskClusterConfig = MISSING
 
     processed_data_save_dir: str = MISSING
+
+    run_tag: str = "default_run"
 
     docker_image_name: str = MISSING
     docker_image_tag: str = MISSING
@@ -37,4 +39,4 @@ def setup_config() -> None:
     dask_cluster_schema.setup_config()
 
     cs = ConfigStore.instance()
-    cs.store(name="data_processing_config_schema", node=DataProcessConfig)
+    cs.store(name="data_processing_config_schema", node=DataProcessingConfig)

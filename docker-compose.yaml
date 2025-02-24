@@ -5,6 +5,8 @@ services:
     hostname: "${HOST_NAME:-bullyguard}"
     image: bullyguard-data-processing
     container_name: bullyguard-data-processing-container
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=./creds/ml-project-447013-8e95deb1e8f4.json
     build:
       context: .
       dockerfile: ./docker/Dockerfile

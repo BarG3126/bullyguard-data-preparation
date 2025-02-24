@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING, SI
 from pydantic.dataclasses import dataclass
@@ -37,11 +37,11 @@ class LocalDaskClusterConfig(DaskClusterConfig):
 
 @dataclass
 class GCPDaskClusterConfig(DaskClusterConfig):
-    _target_: str = "dask_cloudprovider.gcp.GCPVluster"
-    project_id: str = SI("${infrastructure.project_id}")
+    _target_: str = "dask_cloudprovider.gcp.GCPCluster"
+    projectid: str = SI("${infrastructure.project_id}")
     zone: str = SI("${infrastructure.zone}")
     network: str = SI("${infrastructure.network}")
-    network_project_id: Optional[str] = "bullyguard"
+    network_projectid: Optional[str] = SI("${infrastructure.project_id}")
     machine_type: str = "n1-standard-1"
     source_image: str = "projects/ubuntu-os-cloud/global/images/ubuntu-minimal-1804-bionic-v20201014"
     docker_image: Optional[str] = "daskdev/dask:latest"
@@ -55,6 +55,7 @@ class GCPDaskClusterConfig(DaskClusterConfig):
 
     n_workers: int = 0
     worker_class: str = "dask.distributed.Nanny"
+    worker_options: dict[str, Any] = field(default_factory=lambda: {})
     env_vars: dict[str, str] = field(default_factory=lambda: {})
     scheduler_options: dict[str, str] = field(default_factory=lambda: {})
     silence_logs: Optional[bool] = None
