@@ -1,6 +1,8 @@
 import argparse
+
 from pathlib import Path
-from bullyguard.utils.config_utils import config_args_parser, compose_config, save_config_as_yaml, save_config_as_pickle
+
+from bullyguard.utils.config_utils import compose_config, config_args_parser, save_config_as_pickle, save_config_as_yaml
 
 
 def generate_final_config(args: argparse.Namespace) -> None:

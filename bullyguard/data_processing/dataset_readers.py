@@ -7,8 +7,9 @@ import dask.dataframe as dd
 
 from dask_ml.model_selection import train_test_split
 from dvc.api import get_url
+
+from bullyguard.utils.data_utils import get_repo_address_with_access_token, repartition_dataframe
 from bullyguard.utils.utils import get_logger
-from bullyguard.utils.data_utils import repartition_dataframe, get_repo_address_with_access_token
 
 
 class DatasetReader(ABC):
@@ -23,12 +24,14 @@ class DatasetReader(ABC):
         gcp_github_access_token_secret_id: str,
         dvc_remote_repo: str,
         github_user_name: str,
-        version: str
+        version: str,
     ) -> None:
         self.logger = get_logger(self.__class__.__name__)
         self.dataset_dir = dataset_dir
         self.dataset_name = dataset_name
-        self.dvc_remote_repo = get_repo_address_with_access_token(gcp_project_id, gcp_github_access_token_secret_id, dvc_remote_repo, github_user_name)
+        self.dvc_remote_repo = get_repo_address_with_access_token(
+            gcp_project_id, gcp_github_access_token_secret_id, dvc_remote_repo, github_user_name
+        )
         self.version = version
 
     def read_data(self) -> dd.core.DataFrame:
@@ -92,9 +95,17 @@ class GHCDatasetReader(DatasetReader):
         gcp_github_access_token_secret_id: str,
         dvc_remote_repo: str,
         github_user_name: str,
-        version: str
+        version: str,
     ) -> None:
-        super().__init__(dataset_dir, dataset_name, gcp_project_id, gcp_github_access_token_secret_id, dvc_remote_repo, github_user_name, version)
+        super().__init__(
+            dataset_dir,
+            dataset_name,
+            gcp_project_id,
+            gcp_github_access_token_secret_id,
+            dvc_remote_repo,
+            github_user_name,
+            version,
+        )
         self.dev_split_ratio = dev_split_ratio
 
     def _read_data(self) -> tuple[dd.core.DataFrame, dd.core.DataFrame, dd.core.DataFrame]:
@@ -127,9 +138,17 @@ class JigsawToxicCommentsDatasetReader(DatasetReader):
         gcp_github_access_token_secret_id: str,
         dvc_remote_repo: str,
         github_user_name: str,
-        version: str
+        version: str,
     ) -> None:
-        super().__init__(dataset_dir, dataset_name, gcp_project_id, gcp_github_access_token_secret_id, dvc_remote_repo, github_user_name, version)
+        super().__init__(
+            dataset_dir,
+            dataset_name,
+            gcp_project_id,
+            gcp_github_access_token_secret_id,
+            dvc_remote_repo,
+            github_user_name,
+            version,
+        )
         self.dev_split_ratio = dev_split_ratio
         self.columns_for_label = ["toxic", "severe_toxic", "obscene", "threat", "insult", "identity_hate"]
 
@@ -176,9 +195,17 @@ class TwitterDatasetReader(DatasetReader):
         gcp_github_access_token_secret_id: str,
         dvc_remote_repo: str,
         github_user_name: str,
-        version: str
+        version: str,
     ) -> None:
-        super().__init__(dataset_dir, dataset_name, gcp_project_id, gcp_github_access_token_secret_id, dvc_remote_repo, github_user_name, version)
+        super().__init__(
+            dataset_dir,
+            dataset_name,
+            gcp_project_id,
+            gcp_github_access_token_secret_id,
+            dvc_remote_repo,
+            github_user_name,
+            version,
+        )
         self.dev_split_ratio = dev_split_ratio
         self.test_split_ratio = test_split_ratio
 
@@ -196,7 +223,12 @@ class TwitterDatasetReader(DatasetReader):
 
 
 class DatasetReaderManager:
-    def __init__(self, dataset_readers: dict[str, DatasetReader], repartition: bool = True, available_memory: Optional[float] = None) -> None:
+    def __init__(
+        self,
+        dataset_readers: dict[str, DatasetReader],
+        repartition: bool = True,
+        available_memory: Optional[float] = None,
+    ) -> None:
         self.dataset_readers = dataset_readers
         self.repartition = repartition
         self.available_memory = available_memory

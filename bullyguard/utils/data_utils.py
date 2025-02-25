@@ -1,10 +1,13 @@
-from typing import Optional
-import dask.dataframe as dd
-import psutil
-import pandas as pd
 from shutil import rmtree
-from bullyguard.utils.utils import run_shell_command
+from typing import Optional
+
+import pandas as pd
+import psutil
+
+from dask.dataframe import DataFrame as DaskDataFrame
+
 from bullyguard.utils.gcp_utils import access_secret_version
+from bullyguard.utils.utils import run_shell_command
 
 
 def get_cmd_to_get_raw_data(
@@ -96,12 +99,12 @@ def get_nrof_partitions(
 
 
 def repartition_dataframe(
-    df: dd.core.DataFrame,
+    df: DaskDataFrame,
     nrof_workers: int,
     available_memory: Optional[float] = None,
     min_partition_size: int = 15 * 1024**2,
     aimed_nrof_partitions_per_worker: int = 10,
-) -> dd.core.DataFrame:
+) -> DaskDataFrame:
     """Repartitions a Dask DataFrame for optimal processing across workers.
 
     This function optimizes the partitioning of a Dask DataFrame based on available workers,
@@ -132,17 +135,11 @@ def repartition_dataframe(
 
     # Calculate optimal number of partitions
     nrof_partitions = get_nrof_partitions(
-        df_memory_usage,
-        nrof_workers,
-        available_memory,
-        min_partition_size,
-        aimed_nrof_partitions_per_worker
+        df_memory_usage, nrof_workers, available_memory, min_partition_size, aimed_nrof_partitions_per_worker
     )
 
     # Repartition DataFrame: first consolidate, then split into optimal partitions
-    partitioned_df: dd.core.DataFrame = df.repartition(npartitions=1).repartition(
-        npartitions=nrof_partitions
-    )  # type: ignore
+    partitioned_df: DaskDataFrame = df.repartition(npartitions=1).repartition(npartitions=nrof_partitions)
 
     return partitioned_df
 

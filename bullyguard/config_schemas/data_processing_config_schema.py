@@ -2,8 +2,8 @@ from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING
 from pydantic.dataclasses import dataclass
 
-from bullyguard.config_schemas.data_processing import dataset_cleaners_schema, dataset_readers_schema
 from bullyguard.config_schemas.dask_cluster import dask_cluster_schema
+from bullyguard.config_schemas.data_processing import dataset_cleaners_schema, dataset_readers_schema
 from bullyguard.config_schemas.infrastructure import gcp_schema
 
 

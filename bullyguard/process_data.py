@@ -1,14 +1,18 @@
-import dask.dataframe as dd
-from hydra.utils import instantiate
-from dask.distributed import Client
-from pathlib import Path
 import os
-from bullyguard.config_schemas.data_processing_config_schema import DataProcessingConfig
+
+from pathlib import Path
+
+import dask.dataframe as dd
+
+from dask.distributed import Client
+from hydra.utils import instantiate
+
 from bullyguard.config_schemas.data_processing.dataset_cleaners_schema import DatasetCleanerManagerConfig
-from bullyguard.utils.config_utils import get_pickle_config, custom_instantiate
+from bullyguard.config_schemas.data_processing_config_schema import DataProcessingConfig
+from bullyguard.utils.config_utils import custom_instantiate, get_pickle_config
 from bullyguard.utils.data_utils import filter_based_on_min_nrof_words
-from bullyguard.utils.utils import get_logger
 from bullyguard.utils.io_utils import write_yaml_file
+from bullyguard.utils.utils import get_logger
 
 
 def process_raw_data(
@@ -20,10 +24,6 @@ def process_raw_data(
 
 @get_pickle_config(config_path="bullyguard/configs/automatically_generated", config_name="data_processing_config")
 def process_data(config: DataProcessingConfig) -> None:
-    # print(60 * "#")
-    # print(config)
-    # print(60 * "#")
-    # exit(0)
 
     logger = get_logger(Path(__file__).name)
     logger.info("Processing raw data...")
@@ -34,14 +34,17 @@ def process_data(config: DataProcessingConfig) -> None:
     client = Client(cluster)
 
     try:
-
         dataset_reader_manager = instantiate(config.dataset_reader_manager)
         dataset_cleaner_manager = instantiate(config.dataset_cleaner_manager)
 
         df = dataset_reader_manager.read_data(config.dask_cluster.n_workers)
 
         logger.info("Cleaning data...")
-        df = df.assign(cleaned_text=df.map_partitions(process_raw_data, dataset_cleaner_manager=dataset_cleaner_manager, meta=("text", "object")))
+        df = df.assign(
+            cleaned_text=df.map_partitions(
+                process_raw_data, dataset_cleaner_manager=dataset_cleaner_manager, meta=("text", "object")
+            )
+        )
         df = df.compute()
 
         train_parquet_path = os.path.join(processed_data_save_dir, "train.parquet")

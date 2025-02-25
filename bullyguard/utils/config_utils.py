@@ -1,20 +1,23 @@
 import argparse
-import os
 import importlib
-from dataclasses import asdict
-from functools import partial
 import logging
 import logging.config
+import os
 import pickle
-from typing import Any, Optional
+
+from dataclasses import asdict
+from functools import partial
 from io import BytesIO, StringIO
+from typing import Any, Optional
+
 import hydra
 import yaml
+
 from hydra import compose, initialize
 from hydra.types import TaskFunction
 from omegaconf import DictConfig, OmegaConf
 
-from bullyguard.config_schemas import data_processing_config_schema
+from bullyguard.config_schemas import data_processing_config_schema, tokenizer_training_config_schema
 from bullyguard.utils.io_utils import open_file
 
 
@@ -55,6 +58,7 @@ def load_pickle_config(config_path: str, config_name: str) -> Any:
 
 def setup_config() -> None:
     data_processing_config_schema.setup_config()
+    tokenizer_training_config_schema.setup_config()
 
 
 def setup_logger() -> None:

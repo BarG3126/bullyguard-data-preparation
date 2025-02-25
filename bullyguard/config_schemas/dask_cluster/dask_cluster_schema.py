@@ -1,8 +1,9 @@
-from typing import Optional, Any
+from dataclasses import field
+from typing import Any, Optional
+
 from hydra.core.config_store import ConfigStore
 from omegaconf import MISSING, SI
 from pydantic.dataclasses import dataclass
-from dataclasses import field
 
 
 @dataclass
@@ -46,7 +47,9 @@ class GCPDaskClusterConfig(DaskClusterConfig):
     source_image: str = "projects/ubuntu-os-cloud/global/images/ubuntu-minimal-1804-bionic-v20201014"
     docker_image: Optional[str] = "daskdev/dask:latest"
     docker_args: str = ""
-    extra_bootstrap: Optional[list[str]] = field(default_factory=lambda: ["gcloud auth configure-docker --quiet europe-west4-docker.pkg.dev"])
+    extra_bootstrap: Optional[list[str]] = field(
+        default_factory=lambda: ["gcloud auth configure-docker --quiet europe-west4-docker.pkg.dev"]
+    )
     ngpus: Optional[int] = 0
     gpu_type: Optional[str] = None
     filesystem_size: int = 50  # in GB

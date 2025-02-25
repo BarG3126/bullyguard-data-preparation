@@ -37,13 +37,25 @@ generate-final-config: up guard-CONFIG_NAME
 generate-final-data-processing-config: up
 	$(DOCKER_COMPOSE_EXEC) python ./bullyguard/generate_final_config.py --config-name data_processing_config --overrides docker_image_name=$(GCP_DOCKER_IMAGE_NAME) docker_image_tag=$(GCP_DOCKER_IMAGE_TAG) $${OVERRIDES}
 
-## processes raw data:
+## Generate final tokenizer taining config. For overrides use: OVERRIDES=<overrides>
+generate-final-tokenizer-training-config: up
+	$(DOCKER_COMPOSE_EXEC) python ./bullyguard/generate_final_config.py --config-name tokenizer_training_config --overrides docker_image_name=$(GCP_DOCKER_IMAGE_NAME) docker_image_tag=$(GCP_DOCKER_IMAGE_TAG) $${OVERRIDES}
+
+## processes raw data.
 process-data: generate-final-data-processing-config push
 	$(DOCKER_COMPOSE_EXEC) python ./bullyguard/process_data.py
+
+## Train the tokenizer.
+train-tokenizer: generate-final-tokenizer-training-config push
+	$(DOCKER_COMPOSE_EXEC) python ./bullyguard/train_tokenizer.py
 
 ## check process data functionality / debugging:
 local-process-data: generate-final-data-processing-config
 	$(DOCKER_COMPOSE_EXEC) python ./bullyguard/process_data.py
+
+## Train a tokenizer
+local-train-tokenizer: generate-final-tokenizer-training-config
+	$(DOCKER_COMPOSE_EXEC) python bullyguard/train_tokenizer.py
 
 ## push docker image to GCP artifact registry
 push: build
