@@ -2,3 +2,4 @@ defaults:
   - local_dask_cluster_schema
 
 n_workers: 12
+memory_limit: "4GB"

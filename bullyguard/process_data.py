@@ -6,6 +6,7 @@ import os
 from bullyguard.config_schemas.data_processing_config_schema import DataProcessingConfig
 from bullyguard.config_schemas.data_processing.dataset_cleaners_schema import DatasetCleanerManagerConfig
 from bullyguard.utils.config_utils import get_pickle_config, custom_instantiate
+from bullyguard.utils.data_utils import filter_based_on_min_nrof_words
 from bullyguard.utils.utils import get_logger
 from bullyguard.utils.io_utils import write_yaml_file
 
@@ -19,11 +20,11 @@ def process_raw_data(
 
 @get_pickle_config(config_path="bullyguard/configs/automatically_generated", config_name="data_processing_config")
 def process_data(config: DataProcessingConfig) -> None:
-    # from omegaconf import OmegaConf
     # print(60 * "#")
-    # print(OmegaConf.to_yaml(config))
     # print(config)
-    # return
+    # print(60 * "#")
+    # exit(0)
+
     logger = get_logger(Path(__file__).name)
     logger.info("Processing raw data...")
 
@@ -47,9 +48,17 @@ def process_data(config: DataProcessingConfig) -> None:
         dev_parquet_path = os.path.join(processed_data_save_dir, "dev.parquet")
         test_parquet_path = os.path.join(processed_data_save_dir, "test.parquet")
 
-        df[df["split"] == "train"].to_parquet(train_parquet_path)
-        df[df["split"] == "dev"].to_parquet(dev_parquet_path)
-        df[df["split"] == "test"].to_parquet(test_parquet_path)
+        train_df = df[df["split"] == "train"]
+        dev_df = df[df["split"] == "dev"]
+        test_df = df[df["split"] == "test"]
+
+        train_df = filter_based_on_min_nrof_words(train_df, min_nrof_words=config.min_nrof_words)
+        dev_df = filter_based_on_min_nrof_words(dev_df, min_nrof_words=config.min_nrof_words)
+        test_df = filter_based_on_min_nrof_words(test_df, min_nrof_words=config.min_nrof_words)
+
+        train_df.to_parquet(train_parquet_path)
+        dev_df.to_parquet(dev_parquet_path)
+        test_df.to_parquet(test_parquet_path)
 
         docker_info = {"docker_image": config.docker_image_name, "docker_tag": config.docker_image_tag}
         docker_info_save_path = os.path.join(processed_data_save_dir, "docker_info.yaml")
